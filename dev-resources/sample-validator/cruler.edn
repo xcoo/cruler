@@ -1,0 +1,17 @@
+{:validators
+ {:cruler.validators/start-of-file ["(approved-drug|drug)/[\\w-]+\\.ya?ml$"
+                                    "description/[\\w-]+\\.(csv|te?xt)$"]
+  :cruler.validators/trailing-whitespace ["description/[\\w-]+\\.(csv|te?xt)$"]
+  :cruler.validators/end-of-file ["description/[\\w-]+\\.(csv|te?xt)$"]
+  :cruler.validators/blank-line ["description/[\\w-]+\\.te?xt$"]
+  :sample-validator.sort/sort ["description/[\\w-]+\\.te?xt$"]
+  :sample-validator.reference/approval<->drug ["(approved-drug|drug)/[\\w-]+\\.ya?ml$"]
+  :sample-validator.duplication/duplication ["description/[\\w-]+\\.csv$"]
+  :sample-validator.csv-blank/csv-blank ["description/[\\w-]+\\.csv$"]
+  :sample-validator.spec/approval ["approved-drug/[\\w-]+\\.ya?ml$"]}
+
+ ;; The classpaths including validator source codes, the default value is
+ ;; `["validator"]`.
+ ;; :paths ["validator"]
+
+ :deps [[clj-hgvs "0.4.0"]]}

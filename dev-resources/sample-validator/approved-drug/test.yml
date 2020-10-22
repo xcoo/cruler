@@ -1,0 +1,10 @@
+- drug: foo
+  types:
+    - category: A
+      serial: 1234
+  comment: A1
+
+- drug: bar
+  types:
+    - serial: 9876
+  comment: A2

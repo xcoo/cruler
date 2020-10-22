@@ -1,0 +1,18 @@
+{:deps {org.clojure/clojure {:mvn/version "1.10.1"}
+        org.clojure/tools.cli {:mvn/version "1.0.194"}
+        org.slf4j/slf4j-nop {:mvn/version "1.7.30"}
+        clj-commons/pomegranate {:mvn/version "1.2.0"}
+        clj-commons/clj-yaml {:mvn/version "0.7.1"}
+        org.clojure/data.csv {:mvn/version "1.0.0"}
+        io.aviso/pretty {:mvn/version "0.1.37"}
+        phrase {:mvn/version "0.3-alpha4"}}
+ :aliases {:validate {:main-opts ["-m" "cruler.main"]}
+           :lint {:extra-deps {cljfmt {:mvn/version "0.6.8"}}
+                  :main-opts ["-m" "cljfmt.main" "check" "./"]}
+           :test {:extra-paths ["test"]
+                  :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                          :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+                  :main-opts ["-m" "cognitect.test-runner"]}
+           :depstar {:extra-deps {seancorfield/depstar {:mvn/version "1.0.97"}}
+                     :main-opts ["-m" "hf.depstar.uberjar" "cruler.jar"
+                                 "-S" "-C" "-m" "cruler.main"]}}}

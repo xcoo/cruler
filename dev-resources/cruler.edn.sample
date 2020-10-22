@@ -1,0 +1,11 @@
+;; Copy this file to validator's directory.
+
+{:validators
+ {:validator.general/file-format ["(test|sample|example)/[\\w-]+\\.ya?ml$"]
+  :validator.spec/element ["(test|sample|example)/[\\w-]+\\.ya?ml$"]}
+
+ ;; The classpaths including validator source codes, the default value is
+ ;; `["validator"]`.
+ ;; :paths ["validator"]
+
+ :deps [[clj-hgvs "0.4.0"]]}
