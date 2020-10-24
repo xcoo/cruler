@@ -1,0 +1,19 @@
+# https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
+name: docker-push
+on: [push] # TODO: only master
+jobs:
+  docker_push:
+    name: Docker push
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      # You can see on: https://github.com/xcoo/cruler/packages
+      - name: docker-push
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: docker.pkg.github.com
+          repository: xcoo/cruler/cruler
+          tag_with_ref: true
