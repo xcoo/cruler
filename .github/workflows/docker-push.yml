@@ -1,7 +1,10 @@
 # ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
 # You can find the image on: https://github.com/xcoo/cruler/packages
 name: docker-push
-on: [push] # TODO: only master
+on:
+  push:
+    branches:
+      - main
 jobs:
   docker_push:
     name: Docker push
