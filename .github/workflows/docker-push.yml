@@ -1,4 +1,5 @@
-# https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
+# ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
+# You can find the image on: https://github.com/xcoo/cruler/packages
 name: docker-push
 on: [push] # TODO: only master
 jobs:
@@ -8,12 +9,16 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      # You can see on: https://github.com/xcoo/cruler/packages
-      - name: docker-push
+
+      - name: get image version
+        id: get_image_version
+        run: echo ::set-output name=VERSION::$(grep -m1 '<version>' pom.xml |cut -d '<' -f2  |cut -d '>' -f2)
+
+      - name: docker push
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: xcoo/cruler/cruler
-          tag_with_ref: true
+          tags: ${{ steps.get_image_version.outputs.VERSION }}
