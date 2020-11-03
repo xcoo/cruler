@@ -1,5 +1,7 @@
 # Cruler
 
+![ci](https://github.com/xcoo/cruler/workflows/ci/badge.svg)
+
 Cruler is a framework of file format validation.
 
 ## What is it
