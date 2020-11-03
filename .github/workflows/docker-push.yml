@@ -13,8 +13,8 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
 
-      - name: get image version
-        id: get_image_version
+      - name: get tag version
+        id: get_tag_version
         run: echo ::set-output name=VERSION::$(grep -m1 '<version>' pom.xml |cut -d '<' -f2  |cut -d '>' -f2)
 
       - name: docker push
@@ -24,4 +24,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
           repository: xcoo/cruler/cruler
-          tags: ${{ steps.get_image_version.outputs.VERSION }}
+          tags: ${{ steps.get_tag_version.outputs.VERSION }}
