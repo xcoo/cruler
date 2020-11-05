@@ -1,13 +1,13 @@
 # ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
 # You can find the image on: https://github.com/xcoo/cruler/packages
-name: docker-push
+name: snapshot-push
 on:
   push:
     branches:
       - main
 jobs:
   docker_push:
-    name: Docker push
+    name: snapshot push
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -15,9 +15,13 @@ jobs:
 
       - name: get tag version
         id: get_tag_version
-        run: echo ::set-output name=VERSION::$(grep -m1 '<version>' pom.xml |cut -d '<' -f2  |cut -d '>' -f2)
+        run: |
+          sudo apt-get install libxml2-utils
+          echo ::set-output \
+            name=VERSION::$(xmllint --xpath "/*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
 
-      - name: docker push
+      - name: snapshot push
+        if: endsWith(steps.get_tag_version.outputs.VERSION, '-SNAPSHOT')
         uses: docker/build-push-action@v1
         with:
           username: ${{ github.actor }}
