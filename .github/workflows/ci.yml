@@ -29,7 +29,7 @@ jobs:
         run: clj -Alint
 
   # ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
-  # You can find the image on: https://github.com/xcoo/cruler/packages
+  # You can find the image on: https://hub.docker.com/r/xcoo/cruler
   snapshot-push:
     name: snapshot push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -38,14 +38,12 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-
       - name: get tag version
         id: get_tag_version
         run: |
           sudo apt-get install libxml2-utils
           echo ::set-output \
             name=VERSION::$(xmllint --xpath "/*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-
       - name: snapshot push
         if: endsWith(steps.get_tag_version.outputs.VERSION, '-SNAPSHOT')
         uses: docker/build-push-action@v1
