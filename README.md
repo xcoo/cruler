@@ -120,6 +120,19 @@ Ran XXX validations.
 XXX passes, XXX failures.
 ```
 
+### Use with Docker
+
+You can use the docker image on [DockerHub/cruler](https://hub.docker.com/r/xcoo/cruler).
+
+```console
+# Specify image tag
+$ TAG=0.1.0-SNAPSHOT
+$ docker pull xcoo/cruler:${TAG}
+
+# Run validation
+$ docker run --rm -v /path/to/validator/project:/cruler -it xcoo/cruler:${TAG}
+```
+
 ## Options
 
 ```console
