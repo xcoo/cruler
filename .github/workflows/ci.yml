@@ -50,8 +50,7 @@ jobs:
         if: endsWith(steps.get_tag_version.outputs.VERSION, '-SNAPSHOT')
         uses: docker/build-push-action@v1
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: docker.pkg.github.com
-          repository: xcoo/cruler/cruler
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: xcoo/cruler
           tags: ${{ steps.get_tag_version.outputs.VERSION }}
