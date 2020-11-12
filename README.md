@@ -126,7 +126,7 @@ You can use the docker image on [DockerHub/cruler](https://hub.docker.com/r/xcoo
 
 ```console
 # Specify image tag
-$ TAG=0.1.0-SNAPSHOT
+$ TAG=1.0.0
 $ docker pull xcoo/cruler:${TAG}
 
 # Run validation
