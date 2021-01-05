@@ -4,7 +4,6 @@
             [clojure.string :as string]
             [cruler.spec-parser :as sp]
             [cruler.parser :as parser]
-            [cruler.report :as report]
             [io.aviso.ansi :as ansi]))
 
 (defmulti validate
@@ -180,24 +179,12 @@
   ([validators]
    (run-validators validators "."))
   ([validators base-dir]
-   ; TODO I don't want to use report/report-counter directly
-   (report/reset-report-counter)
-   (doseq [[rule patterns] validators]
-     ;  TODO show "\nValidating" in main
-     ;  (log/info "\nValidating" rule)
-     (require (symbol (namespace rule)))
-     (let [data (->> (map re-pattern patterns)
-                     (filter-files base-dir)
-                     (mapv build-data1))
-           result (-> (validate rule data)
-                      (build-result rule data))]
-      ; TODO I want to return result instead of summary
-      ; Currently, error messagens show on stdout and stderr, so I want to stop this, and 
-      ; to return a map of errors 
-      ; (println "aaaaaaaaaaaaaaa")
-      ; (println result)
-      ; (println "aaaaaaaaaaaaaaa")
-       (report/report result)))
-   (do
-     (report/add-summary-report)
-     (report/get-summary-report))))
+   (for [[rule patterns] validators]
+     (do
+       (require (symbol (namespace rule)))
+       (let [data (->> (map re-pattern patterns)
+                       (filter-files base-dir)
+                       (mapv build-data1))
+             result (-> (validate rule data)
+                        (build-result rule data))]
+         result)))))

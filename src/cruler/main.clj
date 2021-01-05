@@ -5,7 +5,8 @@
             [cruler.classpath :as classpath]
             [cruler.config :as config]
             [cruler.core :as core]
-            [cruler.log :as log])
+            [cruler.log :as log]
+            [cruler.report :as report])
   (:gen-class))
 
 (def ^:private default-config-filename "cruler.edn")
@@ -29,9 +30,12 @@
       (classpath/ensure-dynamic-classloader)
       (classpath/add-classpaths dir (:paths config))
       (classpath/add-deps (:deps config))
-      ; TODO I want to use "report" function here
-      (let [summary (core/run-validators (:validators config) dir)]
-        (System/exit (if (zero? (:fail summary)) 0 1))))))
+      (report/reset-report-counter)
+      (doseq [result (core/run-validators (:validators config) dir)]
+        (log/info "\nValidating" (:validator result))
+        (report/report result))
+      (report/show-summary-report)
+      (System/exit (if (report/has-failure?) 0 1)))))
 
 (def ^:private cli-options
   [["-c" "--config CONFIG" "Specify a configuration file (default: cruler.edn)"]

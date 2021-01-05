@@ -33,8 +33,8 @@
   (println "\nRan" (:validate m) "validations.")
   (println (str (:pass m) " passes, " (:fail m) " failures.")))
 
-; TODO delete later
-(defn add-summary-report []
+(defn show-summary-report []
   (report @report-counter))
-(defn get-summary-report []
-  @report-counter)
+
+(defn has-failure? []
+  (zero? (:fail @report-counter)))
