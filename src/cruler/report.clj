@@ -1,9 +1,14 @@
 (ns cruler.report
   (:require [cruler.log :as log]))
 
-; TODO I want to private "report-counter"
-(def report-counter
-  (atom {:validate 0, :pass 0, :fail 0}))
+(def init-report-counter
+  {:validate 0, :pass 0, :fail 0 :type :summary})
+
+(def ^:private report-counter
+  (atom init-report-counter))
+
+(defn reset-report-counter []
+  (reset! report-counter init-report-counter))
 
 (defmulti report :type)
 
@@ -27,3 +32,9 @@
 (defmethod report :summary [m]
   (println "\nRan" (:validate m) "validations.")
   (println (str (:pass m) " passes, " (:fail m) " failures.")))
+
+; TODO delete later
+(defn add-summary-report []
+  (report @report-counter))
+(defn get-summary-report []
+  @report-counter)

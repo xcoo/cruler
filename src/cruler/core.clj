@@ -181,7 +181,7 @@
    (run-validators validators "."))
   ([validators base-dir]
    ; TODO I don't want to use report/report-counter directly
-   (reset! report/report-counter {:validate 0, :pass 0, :fail 0})
+   (report/reset-report-counter)
    (doseq [[rule patterns] validators]
      ;  TODO show "\nValidating" in main
      ;  (log/info "\nValidating" rule)
@@ -198,6 +198,6 @@
       ; (println result)
       ; (println "aaaaaaaaaaaaaaa")
        (report/report result)))
-   (let [summary (assoc @report/report-counter :type :summary)]
-     (report/report summary)
-     summary)))
+   (do
+     (report/add-summary-report)
+     (report/get-summary-report))))
