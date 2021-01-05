@@ -85,3 +85,24 @@
         (let [result (first (filter #(= (:validator %) :cruler.validators/blank-line) results))]
           (t/is (= (:type result) :fail))
           (t/is (string/includes? (:message result) "failure.csv")))))))
+
+(t/deftest run-validators-single-file-test
+  (let [run-validators-single-file #'core/run-validators-single-file]
+    (t/testing "show type and message of validator in results"
+      (let [validators {:cruler.validators/start-of-file ["sample/[\\w-]+\\.(csv|yml)$"]
+                        :cruler.validators/trailing-whitespace ["sample/[\\w-]+\\.(csv|yml)$"]
+                        :cruler.validators/end-of-file ["sample/[\\w-]+\\.(csv|yml)$"]
+                        :cruler.validators/blank-line ["sample/[\\w-]+\\.csv$"]}
+            filepath "test/cruler/resources/sample/failure.yml"
+            results (run-validators-single-file validators filepath)]
+        (t/is (= (count results) 4))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/start-of-file) results))]
+          (t/is (= (:type result) :fail))
+          (t/is (string/includes? (:message result) "failure.yml")))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/trailing-whitespace) results))]
+          (t/is (= (:type result) :pass)))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/end-of-file) results))]
+          (t/is (= (:type result) :pass)))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/blank-line) results))]
+          (t/is (= (:type result) :fail))
+          (t/is (string/includes? (:message result) "failure.yml")))))))

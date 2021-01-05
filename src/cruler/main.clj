@@ -1,8 +1,6 @@
 (ns cruler.main
-  (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+  (:require [clojure.string :as string]
             [clojure.tools.cli :as cli]
-            [cruler.classpath :as classpath]
             [cruler.config :as config]
             [cruler.core :as core]
             [cruler.log :as log]
@@ -11,25 +9,13 @@
 
 (def ^:private default-config-filename "cruler.edn")
 
-(defn- load-config
-  [dir path]
-  (let [file (io/file (or path default-config-filename))
-        file (if (.isAbsolute file)
-               file
-               (io/file dir file))]
-    (log/info "Loading config:" (.getPath file))
-    (config/load-config file)))
-
 (defn- run
   [dir options]
   (binding [log/*level* (if (:verbose options)
                           :info
                           :error)]
-    (let [dir (io/file (or dir "."))
-          config (load-config dir (:config options))]
-      (classpath/ensure-dynamic-classloader)
-      (classpath/add-classpaths dir (:paths config))
-      (classpath/add-deps (:deps config))
+    (let [[filepath config] (core/setup-config dir (or (:config options) default-config-filename))]
+      (log/info "Loading config:" filepath)
       (report/reset-report-counter)
       (doseq [result (core/run-validators (:validators config) dir)]
         (log/info "\nValidating" (:validator result))

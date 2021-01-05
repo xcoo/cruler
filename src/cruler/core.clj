@@ -4,6 +4,8 @@
             [clojure.string :as string]
             [cruler.spec-parser :as sp]
             [cruler.parser :as parser]
+            [cruler.config :as config]
+            [cruler.classpath :as classpath]
             [io.aviso.ansi :as ansi]))
 
 (defmulti validate
@@ -177,17 +179,33 @@
                        :yaml (parser/parse-yaml raw-content))}))
 
 (defn run-validators
-  ([validators]
-   (run-validators validators "."))
-  ([validators base-dir]
-   (for [[rule patterns] validators]
-     (do
-       (require (symbol (namespace rule)))
-       (let [data (->> (map re-pattern patterns)
-                       (filter-files base-dir)
-                       (mapv build-data1))
-             result (-> (validate rule data)
-                        (build-result rule data))]
-         result)))))
+  [validators base-dir]
+  (for [[rule patterns] validators]
+    (do
+      (require (symbol (namespace rule)))
+      (let [data (->> (map re-pattern patterns)
+                      (filter-files base-dir)
+                      (mapv build-data1))
+            result (-> (validate rule data)
+                       (build-result rule data))]
+        result))))
 
-;; TODO I want to move the code loading a cruler.edn
+(defn run-validators-single-file
+  [validators filepath]
+  (let [file (io/file filepath)
+        data [(build-data1 file)]]
+    (for [[rule _] validators]
+      (do
+        (require (symbol (namespace rule)))
+        (let [result (-> (validate rule data)
+                         (build-result rule data))]
+          result)))))
+
+(defn setup-config
+  [dir filepath]
+  (let [dir (io/file (or dir "."))
+        [absolute-filepath config] (config/load-config dir filepath)]
+    (classpath/ensure-dynamic-classloader)
+    (classpath/add-classpaths dir (:paths config))
+    (classpath/add-deps (:deps config))
+    [absolute-filepath config]))
