@@ -2,7 +2,6 @@
   (:require [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.string :as string]
-            [cruler.log :as log] ;; TODO remove
             [cruler.spec-parser :as sp]
             [cruler.parser :as parser]
             [cruler.report :as report]
@@ -184,7 +183,8 @@
    ; TODO I don't want to use report/report-counter directly
    (reset! report/report-counter {:validate 0, :pass 0, :fail 0})
    (doseq [[rule patterns] validators]
-     (log/info "\nValidating" rule)
+     ;  TODO show "\nValidating" in main
+     ;  (log/info "\nValidating" rule)
      (require (symbol (namespace rule)))
      (let [data (->> (map re-pattern patterns)
                      (filter-files base-dir)
