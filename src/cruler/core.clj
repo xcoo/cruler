@@ -2,9 +2,10 @@
   (:require [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.string :as string]
-            [cruler.log :as log]
+            [cruler.log :as log] ;; TODO remove
             [cruler.spec-parser :as sp]
             [cruler.parser :as parser]
+            [cruler.report :as report]
             [io.aviso.ansi :as ansi]))
 
 (defmulti validate
@@ -42,32 +43,6 @@
      :message  An optional error message.}"
   {:arglists '([key data])}
   (fn [key _] key))
-
-(def ^:private report-counter
-  (atom {:validate 0, :pass 0, :fail 0}))
-
-(defmulti report :type)
-
-(defmethod report :default [m]
-  (swap! report-counter #(update % :validate inc))
-  (prn m))
-
-(defmethod report :pass [_]
-  (swap! report-counter #(-> %
-                             (update :validate inc)
-                             (update :pass inc))))
-
-(defmethod report :fail [m]
-  (swap! report-counter #(-> %
-                             (update :validate inc)
-                             (update :fail inc)))
-  (log/error "\nERROR at" (:validator m) "validator")
-  (binding [log/*colorize?* false]
-    (log/error (:message m))))
-
-(defmethod report :summary [m]
-  (println "\nRan" (:validate m) "validations.")
-  (println (str (:pass m) " passes, " (:fail m) " failures.")))
 
 (defn- filter-files [dir xs]
   (->> (file-seq (io/file dir))
@@ -206,7 +181,8 @@
   ([validators]
    (run-validators validators "."))
   ([validators base-dir]
-   (reset! report-counter {:validate 0, :pass 0, :fail 0})
+   ; TODO I don't want to use report/report-counter directly
+   (reset! report/report-counter {:validate 0, :pass 0, :fail 0})
    (doseq [[rule patterns] validators]
      (log/info "\nValidating" rule)
      (require (symbol (namespace rule)))
@@ -215,7 +191,13 @@
                      (mapv build-data1))
            result (-> (validate rule data)
                       (build-result rule data))]
-       (report result)))
-   (let [summary (assoc @report-counter :type :summary)]
-     (report summary)
+      ; TODO I want to return result instead of summary
+      ; Currently, error messagens show on stdout and stderr, so I want to stop this, and 
+      ; to return a map of errors 
+      ; (println "aaaaaaaaaaaaaaa")
+      ; (println result)
+      ; (println "aaaaaaaaaaaaaaa")
+       (report/report result)))
+   (let [summary (assoc @report/report-counter :type :summary)]
+     (report/report summary)
      summary)))

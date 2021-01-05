@@ -29,6 +29,7 @@
       (classpath/ensure-dynamic-classloader)
       (classpath/add-classpaths dir (:paths config))
       (classpath/add-deps (:deps config))
+      ; TODO I want to use "report" function here
       (let [summary (core/run-validators (:validators config) dir)]
         (System/exit (if (zero? (:fail summary)) 0 1))))))
 
