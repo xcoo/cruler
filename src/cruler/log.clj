@@ -3,6 +3,7 @@
 
 (def ^:dynamic *level* :info)
 
+;; TODO I want to switch showing colors by config
 (def ^:dynamic *colorize?* true)
 
 (defn- colorize

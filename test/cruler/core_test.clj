@@ -63,3 +63,25 @@
       (t/are [preview line-num] (= preview (build-preview content line-num false))
         "  preview:\n-----\n1 foo\n2 bar\n3 fizz\n-----\n1 foo\n2 bar\n3 fizz\n4 bazz\n-----" [1 2]
         "  preview:\n-----\n1 foo\n2 bar\n3 fizz\n-----\n4 bazz\n5 qux\n6 quux\n-----"        [1 6]))))
+
+(t/deftest run-validators-test
+  (let [run-validators #'core/run-validators]
+    (t/testing "show type and message of validator in results"
+      (let [validators {:cruler.validators/start-of-file ["sample/[\\w-]+\\.(csv|yml)$"]
+                        :cruler.validators/trailing-whitespace ["sample/[\\w-]+\\.(csv|yml)$"]
+                        :cruler.validators/end-of-file ["sample/[\\w-]+\\.(csv|yml)$"]
+                        :cruler.validators/blank-line ["sample/[\\w-]+\\.csv$"]}
+            base-dir "test/cruler/resources/"
+            results (run-validators validators base-dir)]
+        (t/is (= (count results) 4))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/start-of-file) results))]
+          (t/is (= (:type result) :fail))
+          (t/is (string/includes? (:message result) "failure.csv"))
+          (t/is (string/includes? (:message result) "failure.yml")))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/trailing-whitespace) results))]
+          (t/is (= (:type result) :pass)))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/end-of-file) results))]
+          (t/is (= (:type result) :pass)))
+        (let [result (first (filter #(= (:validator %) :cruler.validators/blank-line) results))]
+          (t/is (= (:type result) :fail))
+          (t/is (string/includes? (:message result) "failure.csv")))))))

@@ -147,6 +147,7 @@
                       (when (seq error-keys)
                         (str (error-block-message indices) "\n"
                              (when (and indices raw-content)
+                               ;; TODO I want to switch showing colors by config
                                (build-preview raw-content indices true))))])))
          (remove nil?)
          (string/join \newline)
@@ -188,3 +189,5 @@
              result (-> (validate rule data)
                         (build-result rule data))]
          result)))))
+
+;; TODO I want to move the code loading a cruler.edn
