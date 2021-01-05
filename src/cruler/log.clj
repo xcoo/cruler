@@ -1,14 +1,14 @@
 (ns cruler.log
-  (:require [io.aviso.ansi :as ansi]))
+  (:require [io.aviso.ansi :as ansi]
+            [cruler.config :as config]))
 
 (def ^:dynamic *level* :info)
 
-;; TODO I want to switch showing colors by config
 (def ^:dynamic *colorize?* true)
 
 (defn- colorize
   [color xs]
-  (if *colorize?*
+  (if (and @config/colorize *colorize?*)
     (map color xs)
     xs))
 

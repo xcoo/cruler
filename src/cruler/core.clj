@@ -149,8 +149,7 @@
                       (when (seq error-keys)
                         (str (error-block-message indices) "\n"
                              (when (and indices raw-content)
-                               ;; TODO I want to switch showing colors by config
-                               (build-preview raw-content indices true))))])))
+                               (build-preview raw-content indices @config/colorize))))])))
          (remove nil?)
          (string/join \newline)
          (str message))))
@@ -208,4 +207,5 @@
     (classpath/ensure-dynamic-classloader)
     (classpath/add-classpaths dir (:paths config))
     (classpath/add-deps (:deps config))
+    (reset! config/colorize (:colorize config))
     [absolute-filepath config]))

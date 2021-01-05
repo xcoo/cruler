@@ -1,7 +1,6 @@
 (ns cruler.main
   (:require [clojure.string :as string]
             [clojure.tools.cli :as cli]
-            [cruler.config :as config]
             [cruler.core :as core]
             [cruler.log :as log]
             [cruler.report :as report])

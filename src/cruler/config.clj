@@ -5,7 +5,11 @@
 (def base-config
   {:validators {}
    :paths ["validator"]
-   :deps []})
+   :deps []
+   :colorize true})
+
+(def colorize
+  (atom true))
 
 (defn- parse-config
   [m]
