@@ -94,7 +94,7 @@
                         :cruler.validators/end-of-file ["sample/[\\w-]+\\.(csv|yml)$"]
                         :cruler.validators/blank-line ["sample/[\\w-]+\\.csv$"]}
             filepath "test/cruler/resources/sample/failure.yml"
-            results (run-validators-single-file validators filepath)]
+            results (run-validators-single-file validators "." filepath)]
         (t/is (= (count results) 4))
         (let [result (first (filter #(= (:validator %) :cruler.validators/start-of-file) results))]
           (t/is (= (:type result) :fail))

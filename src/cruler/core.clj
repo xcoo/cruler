@@ -191,7 +191,10 @@
 
 (defn run-validators-single-file
   [validators base-dir filepath]
-  (let [file (io/file base-dir filepath)
+  (let [file (io/file filepath)
+        file (if (.isAbsolute file)
+               file
+               (io/file base-dir file))
         data [(build-data1 file)]]
     (for [[rule _] validators]
       (do
