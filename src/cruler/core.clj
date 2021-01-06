@@ -195,7 +195,7 @@
      :raw-content raw-content
      :parsed-content (case file-type
                        :csv (parser/parse-csv raw-content)
-                       :text (string/split-lines raw-content)
+                       :text (parser/parse-text raw-content)
                        :yaml (parser/parse-yaml raw-content))}))
 
 (defn run-validators

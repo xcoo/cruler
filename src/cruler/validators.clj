@@ -7,14 +7,16 @@
   (= (string/trim raw-content) ""))
 
 (defn- check-blank-line
-  [{:keys [file-path raw-content]}]
-  {:file-path file-path
-   :error-keys (->> raw-content
-                    (string/split-lines)
-                    (map string/trim)
-                    (map-indexed vector)
-                    (filter #(= (second %) ""))
-                    (map (fn [[idx _]] (inc idx))))})
+  [{:keys [file-path parsed-content]}]
+  (keep (fn [coll]
+          (when-let [keys (->> (map-indexed vector coll)
+                               (filter #(string/blank? (second %)))
+                               (map first)
+                               seq)]
+            {:file-path file-path
+             :error-block coll
+             :error-keys keys}))
+        parsed-content))
 
 (defmethod cruler/validate ::start-of-file
   [_ data]
@@ -38,7 +40,7 @@
   [_ data]
   (let [errors (->> data
                     (remove blank-file?)
-                    (map check-blank-line)
+                    (mapcat check-blank-line)
                     (filter #(seq (:error-keys %))))]
     {:errors errors
      :message "Blank line is found at line"}))
