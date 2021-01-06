@@ -190,8 +190,8 @@
         result))))
 
 (defn run-validators-single-file
-  [validators filepath]
-  (let [file (io/file filepath)
+  [validators base-dir filepath]
+  (let [file (io/file base-dir filepath)
         data [(build-data1 file)]]
     (for [[rule _] validators]
       (do
