@@ -104,5 +104,4 @@
         (let [result (first (filter #(= (:validator %) :cruler.validators/end-of-file) results))]
           (t/is (= (:type result) :pass)))
         (let [result (first (filter #(= (:validator %) :cruler.validators/blank-line) results))]
-          (t/is (= (:type result) :fail))
-          (t/is (string/includes? (:message result) "failure.yml")))))))
+          (t/is (= (:type result) :pass)))))))

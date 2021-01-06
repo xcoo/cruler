@@ -40,6 +40,7 @@
   [_ data]
   (let [errors (->> data
                     (remove blank-file?)
+                    (filter (fn [d] (.contains [:csv :text] (:file-type d))))
                     (mapcat check-blank-line)
                     (filter #(seq (:error-keys %))))]
     {:errors errors

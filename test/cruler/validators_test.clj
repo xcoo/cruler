@@ -1,6 +1,7 @@
 (ns cruler.validators-test
   (:require [cruler.core :as core]
             [cruler.validators]
+            [cruler.parser :as parser]
             [clojure.test :as t]))
 
 (t/deftest start-of-file
@@ -66,17 +67,32 @@
 (t/deftest blank-line
   (let [validate (partial core/validate :cruler.validators/blank-line)]
     (t/testing "no blank line"
-      (t/is (empty? (:errors (validate '({:raw-content "ABC\nDEF\n" :file-path "a.txt"}))))))
+      (t/is (empty? (:errors (validate
+                              (list {:raw-content "ABC\nDEF\n"
+                                     :parsed-content (parser/parse-text "ABC\nDEF\n")
+                                     :file-path "a.txt"
+                                     :file-type :text}))))))
     (t/testing "blank line"
       (t/testing "single file"
         (t/is (= '("b.txt")
-                 (->> (validate '({:raw-content "ABC\n\nDEF\n" :file-path "b.txt"}))
+                 (->> (validate
+                       (list {:raw-content "ABC\n\nDEF\n"
+                              :parsed-content (parser/parse-text "ABC\n\nDEF\n")
+                              :file-path "b.txt"
+                              :file-type :text}))
                       (:errors)
                       (map :file-path)))))
       (t/testing "multiple files"
         (t/is (= '("b.txt" "c.txt")
-                 (->> (validate '({:raw-content "ABC\n\nDEF\n" :file-path "b.txt"}
-                                  {:raw-content "ABC\n\nDEF\n" :file-path "c.txt"}))
+                 (->> (validate
+                       (list {:raw-content "ABC\n\nDEF\n"
+                              :parsed-content (parser/parse-text "ABC\n\nDEF\n")
+                              :file-path "b.txt"
+                              :file-type :text}
+                             {:raw-content "ABC\n\nDEF\n"
+                              :parsed-content (parser/parse-text "ABC\n\nDEF\n")
+                              :file-path "c.txt"
+                              :file-type :text}))
                       (:errors)
                       (map :file-path)
                       (sort)))))
