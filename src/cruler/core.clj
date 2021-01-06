@@ -130,15 +130,18 @@
               (string/join "\n-----\n"))
          "\n-----")))
 
+(defn- error-indices [error-block error-keys]
+  (if (seq error-block)
+    (error-block-lines error-block error-keys)
+    error-keys))
+
 (defn- build-error-message
   [errors message data]
   (let [message (when message
                   (str message \newline))]
     (->> errors
          (mapcat (fn [{:keys [file-path error-block error-keys error-value]}]
-                   (let [indices (if (seq error-block)
-                                   (error-block-lines error-block error-keys)
-                                   error-keys)
+                   (let [indices (error-indices error-block error-keys)
                          raw-content (->> (filter #(= file-path (:file-path %)) data)
                                           first
                                           :raw-content)]
@@ -154,11 +157,22 @@
          (string/join \newline)
          (str message))))
 
+(defn- build-errors [errors]
+  (for [{:keys [file-path error-block error-keys error-value]} errors
+        line (error-indices error-block error-keys)]
+    {:file-path file-path
+     :key (:path error-value)
+     :error (error-value-message error-value)
+     :line line
+     :column 0 ;; TODO ¯_ (ツ) _/¯
+     }))
+
 (defn- build-result
   [{:keys [errors message]} key data]
   {:type (if (empty? errors) :pass :fail)
    :validator key
-   :message (build-error-message errors message data)})
+   :message (build-error-message errors message data)
+   :errors (build-errors errors)})
 
 (defn- file-type [file]
   (condp re-find (.getName file)
