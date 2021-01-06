@@ -157,22 +157,29 @@
          (string/join \newline)
          (str message))))
 
-(defn- build-errors [errors]
+(defn- error-positions
+  [error-block error-keys]
+  (let [children-starts (:children-starts (meta error-block))]
+    (->> (keep #(get children-starts %) error-keys)
+         (map (fn [{:keys [line column]}]
+                {:line (inc line)
+                 :column (inc column)})))))
+
+(defn- build-errors [errors message]
   (for [{:keys [file-path error-block error-keys error-value]} errors
-        line (error-indices error-block error-keys)]
+        position (error-positions error-block error-keys)]
     {:file-path file-path
      :key (:path error-value)
-     :error (error-value-message error-value)
-     :line line
-     :column 0 ;; TODO ¯_ (ツ) _/¯
-     }))
+     :error (or message (error-value-message error-value))
+     :line (:line position)
+     :column (:column position)}))
 
 (defn- build-result
   [{:keys [errors message]} key data]
   {:type (if (empty? errors) :pass :fail)
    :validator key
    :message (build-error-message errors message data)
-   :errors (build-errors errors)})
+   :errors (build-errors errors message)})
 
 (defn- file-type [file]
   (condp re-find (.getName file)
