@@ -22,6 +22,28 @@
                                                {:line 1, :column 1}]}
       2 {:line 2, :column 0, :children-starts [{:line 2, :column 0}]})))
 
+(def sample-text
+  "I have a pen 
+I love you
+
+gacha")
+(deftest parse-text-test
+  (let [parsed (parser/parse-text sample-text)]
+    (is (= parsed [["I" "have" "a" "pen"]
+                   ["I" "love" "you"]
+                   [""]
+                   ["gacha"]]))
+    (are [n m] (= (meta (nth parsed n)) m)
+      0 {:line 0, :column 0, :children-starts [{:line 0, :column 0}
+                                               {:line 0, :column 1}
+                                               {:line 0, :column 2}
+                                               {:line 0, :column 3}]}
+      1 {:line 1, :column 0, :children-starts [{:line 1, :column 0}
+                                               {:line 1, :column 1}
+                                               {:line 1, :column 2}]}
+      2 {:line 2, :column 0, :children-starts [{:line 2, :column 0}]}
+      3 {:line 3, :column 0, :children-starts [{:line 3, :column 0}]})))
+
 (def sample-yaml
   "- a: foo
   b:
