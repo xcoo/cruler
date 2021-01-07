@@ -36,5 +36,5 @@
 (defn show-summary-report []
   (report @report-counter))
 
-(defn has-failure? []
+(defn has-success? []
   (zero? (:fail @report-counter)))

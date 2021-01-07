@@ -20,7 +20,7 @@
         (log/info "\nValidating" (:validator result))
         (report/report result))
       (report/show-summary-report)
-      (System/exit (if (report/has-failure?) 0 1)))))
+      (System/exit (if (report/has-success?) 0 1)))))
 
 (def ^:private cli-options
   [["-c" "--config CONFIG" "Specify a configuration file (default: cruler.edn)"]
