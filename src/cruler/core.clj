@@ -210,6 +210,10 @@
                        (build-result rule data))]
         result))))
 
+(defn- match-patterns? [file patterns]
+  (seq (->> (map re-pattern patterns)
+            (filter #(re-find % (.getPath file))))))
+
 (defn run-validators-single-file
   [validators base-dir filepath]
   (let [file (io/file filepath)
@@ -217,12 +221,13 @@
                file
                (io/file base-dir file))
         data [(build-data1 file)]]
-    (for [[rule _] validators]
-      (do
-        (require (symbol (namespace rule)))
-        (let [result (-> (validate rule data)
-                         (build-result rule data))]
-          result)))))
+    (->> (for [[rule patterns] validators]
+           (when (match-patterns? file patterns)
+             (require (symbol (namespace rule)))
+             (let [result (-> (validate rule data)
+                              (build-result rule data))]
+               result)))
+         (remove nil?))))
 
 (defn setup-config
   [dir filepath]

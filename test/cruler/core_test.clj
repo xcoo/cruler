@@ -95,7 +95,7 @@
                         :cruler.validators/blank-line ["sample/[\\w-]+\\.csv$"]}
             filepath "test/cruler/resources/sample/failure.yml"
             results (run-validators-single-file validators "." filepath)]
-        (t/is (= (count results) 4))
+        (t/is (= (count results) 3))
         (let [result (first (filter #(= (:validator %) :cruler.validators/start-of-file) results))]
           (t/is (= (:type result) :fail))
           (t/is (string/includes? (:message result) "failure.yml")))
@@ -104,4 +104,5 @@
         (let [result (first (filter #(= (:validator %) :cruler.validators/end-of-file) results))]
           (t/is (= (:type result) :pass)))
         (let [result (first (filter #(= (:validator %) :cruler.validators/blank-line) results))]
-          (t/is (= (:type result) :pass)))))))
+          ;; Because the validator's pattern is `["sample/[\\w-]+\\.csv$"]`, the system doesn't use this validator.
+          (t/is (nil? result)))))))
