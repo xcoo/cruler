@@ -231,8 +231,7 @@
 
 (defn setup-config
   [dir filepath]
-  (let [dir (io/file (or dir "."))
-        [absolute-filepath config] (config/load-config dir filepath)]
+  (let [[absolute-filepath config] (config/load-config dir filepath)]
     (classpath/ensure-dynamic-classloader)
     (classpath/add-classpaths dir (:paths config))
     (classpath/add-deps (:deps config))

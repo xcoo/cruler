@@ -1,5 +1,6 @@
 (ns cruler.main
-  (:require [clojure.string :as string]
+  (:require [clojure.java.io :as io]
+            [clojure.string :as string]
             [clojure.tools.cli :as cli]
             [cruler.core :as core]
             [cruler.log :as log]
@@ -13,7 +14,8 @@
   (binding [log/*level* (if (:verbose options)
                           :info
                           :error)]
-    (let [[filepath config] (core/setup-config dir (or (:config options) default-config-filename))]
+    (let [dir (io/file (or dir "."))
+          [filepath config] (core/setup-config dir (or (:config options) default-config-filename))]
       (log/info "Loading config:" filepath)
       (report/reset-report-counter)
       (doseq [result (core/run-validators (:validators config) dir)]
