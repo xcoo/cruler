@@ -6,7 +6,7 @@ Cruler is a framework of file format validation.
 
 ## What is it
 
-There are many cases you want to implement validation of file format. 
+There are many cases you want to implement validation of file format.
 But creating validator is time-consuming because you need to consider input-file format, human-readable error message, result format etc.
 
 Cruler is a validation framework.
@@ -83,8 +83,8 @@ Dabigatran
 
 ### Pre Requirements
 
-+ You already have project which has validator according to the rules of cruler
-+ You created `cruler.edn` in the project
+- You already have project which has validator according to the rules of cruler
+- You created `cruler.edn` in the project
 
 In detail, see [ruler of validator](#Rule-of-validator) and [cruler.edn](#cruleredn) section.
 
@@ -109,6 +109,7 @@ For example, in case you have `sample-validate-project` as follows,
         ├── validator1.clj
         └── validator2.clj
 ```
+
 then you can run `validator/*.clj`.
 
 ```console
@@ -131,6 +132,25 @@ $ docker pull xcoo/cruler:${TAG}
 
 # Run validation
 $ docker run --rm -v /path/to/validator/project:/cruler -it xcoo/cruler:${TAG}
+```
+
+### Use as a library
+
+You can use Cruler as a library.
+
+```clojure
+(ns sample
+  (:require [cruler.core :as cc]))
+
+(defn run [_]
+  (let [[config-file-path config] (cc/setup-config "dev-resources/sample-validator" "cruler.edn")]
+    (println config-file-path)
+
+    ;; If you want to validate a single file, you can use "run-validators-single-file" method.
+    (println (cc/run-validators-single-file (:validators config) "dev-resources/sample-validator" "description/test.txt"))
+
+    ;; If you want to validate a directory as same as CLI, you can use "run-validators" method.
+    (println (cc/run-validators (:validators config) "dev-resources/sample-validator"))))
 ```
 
 ## Options
@@ -170,32 +190,32 @@ So you should declare validators as `defmulti validate ::key`.
 First arg is not used in validators.
 Second arg is `data`. `data` is a array of Map, and the Map conatins key-value as follows.
 
-| key | type | value | description |
-|----|----|---|---|
-| `:file-path` | string | `(.getPath file)` | Relative path from the project's root dir |
-| `:file-type` | keyword | `:csv`, `:text`, or `:yaml` | File type |
-| `:raw-content` | string | `(slurp file)` | Raw string of file contents |
-| `:parsed-content`  | any | See [cruler.parser](src/cruler/parser.clj) | The parsed data of `:raw-content`. The structure of the data depends on `:file-type`. |
+| key               | type    | value                                      | description                                                                           |
+| ----------------- | ------- | ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `:file-path`      | string  | `(.getPath file)`                          | Relative path from the project's root dir                                             |
+| `:file-type`      | keyword | `:csv`, `:text`, or `:yaml`                | File type                                                                             |
+| `:raw-content`    | string  | `(slurp file)`                             | Raw string of file contents                                                           |
+| `:parsed-content` | any     | See [cruler.parser](src/cruler/parser.clj) | The parsed data of `:raw-content`. The structure of the data depends on `:file-type`. |
 
 ### Return value
 
 Cruler expects validators to return Map. The Map should be as follow.
 
-| key | type | description |
-|----|----|---|
-| `:errors` | sequence | See [errors](#errors) |
-| `:message`  | string | If `:errors` is not empty, the message is shown |
+| key        | type     | description                                     |
+| ---------- | -------- | ----------------------------------------------- |
+| `:errors`  | sequence | See [errors](#errors)                           |
+| `:message` | string   | If `:errors` is not empty, the message is shown |
 
 #### :errors
 
 `:errors` is array of Map. The Map should be as follows.
 
-| key | type | description |
-|----|----|---|
-| `:file-path` | string | Relative path from the project's root dir |
-| `:error-value` | string | It should be invalid value |
-| `:error-block` | string | A block in `:parsed-content` containing the error location. See [spec.clj](dev-resources/sample-validator/validator/sample_validator/spec.clj) as sample |
-| `:error-keys` | sequence | Keys in `:error-block` for indicating the specific error location. |
+| key            | type     | description                                                                                                                                              |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `:file-path`   | string   | Relative path from the project's root dir                                                                                                                |
+| `:error-value` | string   | It should be invalid value                                                                                                                               |
+| `:error-block` | string   | A block in `:parsed-content` containing the error location. See [spec.clj](dev-resources/sample-validator/validator/sample_validator/spec.clj) as sample |
+| `:error-keys`  | sequence | Keys in `:error-block` for indicating the specific error location.                                                                                       |
 
 ## cruler.edn
 
@@ -205,16 +225,18 @@ Cruler expects validators to return Map. The Map should be as follow.
 {:validators {
    :validator.namespace/validator-key ["regex of resource file"]}
  :paths ["validator"]
+ :colorize true
  :deps [[library version]]}
 ```
 
 `cruler.edn` requires some keys.
 
-| key | require | default | description |
-|----|----|----|----|
-| `:validators` | true | | Define the validator and resources to be validated |
-| `:paths` | false | ["validator"] | Define the classpaths including validator source codes |
-| `:deps` | false | nil | Define the dependencies which the project require as library |
+| key           | require | default       | description                                                  |
+| ------------- | ------- | ------------- | ------------------------------------------------------------ |
+| `:validators` | true    |               | Define the validator and resources to be validated           |
+| `:paths`      | false   | ["validator"] | Define the classpaths including validator source codes       |
+| `:colorize`   | false   | true          | Define whether to color the output result                    |
+| `:deps`       | false   | nil           | Define the dependencies which the project require as library |
 
 See [cruler.edn.sample](dev-resources/cruler.edn.sample) and [sample-validator/cruler.edn](dev-resources/sample-validator/cruler.edn) as samples.
 

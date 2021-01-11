@@ -1,6 +1,7 @@
 (ns cruler.parser
   (:require [clojure.data.csv :as csv]
-            [clj-yaml.core :as yaml]))
+            [clj-yaml.core :as yaml]
+            [clojure.string :as string]))
 
 (defn parse-csv [s]
   (->> (csv/read-csv s)
@@ -13,6 +14,19 @@
                                           {:line line
                                            :column column})
                                         (range (count coll)))})))))
+
+(defn parse-text [s]
+  (->> (string/split-lines s)
+       (map-indexed (fn [line coll-str] [line (string/split coll-str #" ")]))
+       (map (fn [[line coll]]
+              (with-meta coll
+                {:line line
+                 :column 0
+                 :children-starts (mapv (fn [column]
+                                          {:line line
+                                           :column column})
+                                        (range (count coll)))})))))
+
 
 (defn- process-yaml-meta [marked]
   (let [start (:start marked)

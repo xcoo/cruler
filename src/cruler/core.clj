@@ -2,9 +2,10 @@
   (:require [clojure.java.io :as io]
             [clojure.pprint :as pprint]
             [clojure.string :as string]
-            [cruler.log :as log]
             [cruler.spec-parser :as sp]
             [cruler.parser :as parser]
+            [cruler.config :as config]
+            [cruler.classpath :as classpath]
             [io.aviso.ansi :as ansi]))
 
 (defmulti validate
@@ -42,32 +43,6 @@
      :message  An optional error message.}"
   {:arglists '([key data])}
   (fn [key _] key))
-
-(def ^:private report-counter
-  (atom {:validate 0, :pass 0, :fail 0}))
-
-(defmulti report :type)
-
-(defmethod report :default [m]
-  (swap! report-counter #(update % :validate inc))
-  (prn m))
-
-(defmethod report :pass [_]
-  (swap! report-counter #(-> %
-                             (update :validate inc)
-                             (update :pass inc))))
-
-(defmethod report :fail [m]
-  (swap! report-counter #(-> %
-                             (update :validate inc)
-                             (update :fail inc)))
-  (log/error "\nERROR at" (:validator m) "validator")
-  (binding [log/*colorize?* false]
-    (log/error (:message m))))
-
-(defmethod report :summary [m]
-  (println "\nRan" (:validate m) "validations.")
-  (println (str (:pass m) " passes, " (:fail m) " failures.")))
 
 (defn- filter-files [dir xs]
   (->> (file-seq (io/file dir))
@@ -155,15 +130,18 @@
               (string/join "\n-----\n"))
          "\n-----")))
 
+(defn- error-indices [error-block error-keys]
+  (if (seq error-block)
+    (error-block-lines error-block error-keys)
+    error-keys))
+
 (defn- build-error-message
   [errors message data]
   (let [message (when message
                   (str message \newline))]
     (->> errors
          (mapcat (fn [{:keys [file-path error-block error-keys error-value]}]
-                   (let [indices (if (seq error-block)
-                                   (error-block-lines error-block error-keys)
-                                   error-keys)
+                   (let [indices (error-indices error-block error-keys)
                          raw-content (->> (filter #(= file-path (:file-path %)) data)
                                           first
                                           :raw-content)]
@@ -174,16 +152,34 @@
                       (when (seq error-keys)
                         (str (error-block-message indices) "\n"
                              (when (and indices raw-content)
-                               (build-preview raw-content indices true))))])))
+                               (build-preview raw-content indices @config/colorize))))])))
          (remove nil?)
          (string/join \newline)
          (str message))))
+
+(defn- error-positions
+  [error-block error-keys]
+  (let [children-starts (:children-starts (meta error-block))]
+    (->> (keep #(get children-starts %) error-keys)
+         (map (fn [{:keys [line column]}]
+                {:line (inc line)
+                 :column (inc column)})))))
+
+(defn- build-errors [errors message]
+  (for [{:keys [file-path error-block error-keys error-value]} errors
+        position (error-positions error-block error-keys)]
+    {:file-path file-path
+     :key (:path error-value)
+     :error (or message (error-value-message error-value))
+     :line (:line position)
+     :column (:column position)}))
 
 (defn- build-result
   [{:keys [errors message]} key data]
   {:type (if (empty? errors) :pass :fail)
    :validator key
-   :message (build-error-message errors message data)})
+   :message (build-error-message errors message data)
+   :errors (build-errors errors message)})
 
 (defn- file-type [file]
   (condp re-find (.getName file)
@@ -199,23 +195,45 @@
      :raw-content raw-content
      :parsed-content (case file-type
                        :csv (parser/parse-csv raw-content)
-                       :text (string/split-lines raw-content)
+                       :text (parser/parse-text raw-content)
                        :yaml (parser/parse-yaml raw-content))}))
 
 (defn run-validators
-  ([validators]
-   (run-validators validators "."))
-  ([validators base-dir]
-   (reset! report-counter {:validate 0, :pass 0, :fail 0})
-   (doseq [[rule patterns] validators]
-     (log/info "\nValidating" rule)
-     (require (symbol (namespace rule)))
-     (let [data (->> (map re-pattern patterns)
-                     (filter-files base-dir)
-                     (mapv build-data1))
-           result (-> (validate rule data)
-                      (build-result rule data))]
-       (report result)))
-   (let [summary (assoc @report-counter :type :summary)]
-     (report summary)
-     summary)))
+  [validators base-dir]
+  (for [[rule patterns] validators]
+    (do
+      (require (symbol (namespace rule)))
+      (let [data (->> (map re-pattern patterns)
+                      (filter-files base-dir)
+                      (mapv build-data1))
+            result (-> (validate rule data)
+                       (build-result rule data))]
+        result))))
+
+(defn- match-patterns? [file patterns]
+  (seq (->> (map re-pattern patterns)
+            (filter #(re-find % (.getPath file))))))
+
+(defn run-validators-single-file
+  [validators base-dir filepath]
+  (let [file (io/file filepath)
+        file (if (.isAbsolute file)
+               file
+               (io/file base-dir file))
+        data [(build-data1 file)]]
+    (->> (for [[rule patterns] validators]
+           (when (match-patterns? file patterns)
+             (require (symbol (namespace rule)))
+             (let [result (-> (validate rule data)
+                              (build-result rule data))]
+               result)))
+         (remove nil?))))
+
+(defn setup-config
+  [dir filepath]
+  (let [[absolute-filepath config] (config/load-config dir filepath)]
+    (classpath/ensure-dynamic-classloader)
+    (classpath/add-classpaths dir (:paths config))
+    (classpath/add-deps (:deps config))
+    (reset! config/colorize (:colorize config))
+    [absolute-filepath config]))

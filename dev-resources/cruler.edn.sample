@@ -7,5 +7,8 @@
  ;; The classpaths including validator source codes, the default value is
  ;; `["validator"]`.
  ;; :paths ["validator"]
+ 
+ ;; Whether to color the output result, the default value is `true`
+ ;; :colorize true
 
  :deps [[clj-hgvs "0.4.0"]]}

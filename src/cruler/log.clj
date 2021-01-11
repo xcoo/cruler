@@ -1,5 +1,6 @@
 (ns cruler.log
-  (:require [io.aviso.ansi :as ansi]))
+  (:require [io.aviso.ansi :as ansi]
+            [cruler.config :as config]))
 
 (def ^:dynamic *level* :info)
 
@@ -7,7 +8,7 @@
 
 (defn- colorize
   [color xs]
-  (if *colorize?*
+  (if (and @config/colorize *colorize?*)
     (map color xs)
     xs))
 

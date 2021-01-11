@@ -1,10 +1,15 @@
 (ns cruler.config
-  (:require [clojure.edn :as edn]))
+  (:require [clojure.edn :as edn]
+            [clojure.java.io :as io]))
 
 (def base-config
   {:validators {}
    :paths ["validator"]
-   :deps []})
+   :deps []
+   :colorize true})
+
+(def colorize
+  (atom true))
 
 (defn- parse-config
   [m]
@@ -15,5 +20,9 @@
     (assoc config :validators validators)))
 
 (defn load-config
-  [file]
-  (parse-config (edn/read-string (slurp file))))
+  [dir path]
+  (let [file (io/file path)
+        file (if (.isAbsolute file)
+               file
+               (io/file dir file))]
+    [(.getPath file) (parse-config (edn/read-string (slurp file)))]))
