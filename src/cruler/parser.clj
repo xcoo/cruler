@@ -27,7 +27,6 @@
                                            :column column})
                                         (range (count coll)))})))))
 
-
 (defn- process-yaml-meta [marked]
   (let [start (:start marked)
         unmark (:unmark marked)]
