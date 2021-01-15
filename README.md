@@ -210,12 +210,12 @@ Cruler expects validators to return Map. The Map should be as follow.
 
 `:errors` is array of Map. The Map should be as follows.
 
-| key            | type     | description                                                                                                                                                                                   |
-| -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `:file-path`   | string   | Relative path from the project's root dir                                                                                                                                                     |
-| `:error-value` | hash-map | It has at least `:path` `:pred` and `:val` keys. describing the predicate and the value that failed at that path. See [explain-data](https://clojuredocs.org/clojure.spec.alpha/explain-data) |
-| `:error-block` | string   | A block in `:parsed-content` containing the error location. See [spec.clj](dev-resources/sample-validator/validator/sample_validator/spec.clj) as sample                                      |
-| `:error-keys`  | sequence | Keys in `:error-block` for indicating the specific error location.                                                                                                                            |
+| key            | type               | description                                                                                                                                                                                                                                                           |
+| -------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `:file-path`   | string             | Relative path from the project's root dir                                                                                                                                                                                                                             |
+| `:error-value` | string or hash-map | When it is string, it should be invalid value. And when it is hash-map, it has at least `:path` `:pred` and `:val` keys. describing the predicate and the value that failed at that path. See [explain-data](https://clojuredocs.org/clojure.spec.alpha/explain-data) |
+| `:error-block` | string             | A block in `:parsed-content` containing the error location. See [spec.clj](dev-resources/sample-validator/validator/sample_validator/spec.clj) as sample                                                                                                              |
+| `:error-keys`  | sequence           | Keys in `:error-block` for indicating the specific error location.                                                                                                                                                                                                    |
 
 ## cruler.edn
 
