@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run test
-        run: clj -Atest
+        run: clojure -M:test
 
   validate:
     runs-on: ubuntu-latest
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Validate
-        run: clj -Avalidate dev-resources/sample-validator
+        run: clojure -M:validate dev-resources/sample-validator
 
   lint:
     runs-on: ubuntu-latest
@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run lint
-        run: clj -Alint
+        run: clojure -M:lint
 
   # ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
   # You can find the image on: https://hub.docker.com/r/xcoo/cruler

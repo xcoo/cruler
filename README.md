@@ -1,6 +1,7 @@
 # Cruler
 
 ![ci](https://github.com/xcoo/cruler/workflows/ci/badge.svg)
+[![Clojars Project](https://img.shields.io/clojars/v/xcoo/cruler.svg)](https://clojars.org/xcoo/cruler)
 
 Cruler is a framework of file format validation.
 
@@ -24,7 +25,7 @@ Cruler reduces time to create validators and make validator's error more human-r
 Cruler has [sample validators](dev-resources/sample-validator). You can run the validators.
 
 ```console
-$ clj -Avalidate "dev-resources/sample-validator" -v
+$ clojure -M:validate "dev-resources/sample-validator" -v
 
 Loading config: dev-resources/sample-validator/cruler.edn
 
@@ -50,7 +51,7 @@ Ran 9 validations.
 9 passes, 0 failures.
 ```
 
-Then you should modify a file to be validated.  
+Then you should modify a file to be validated.
 For example, you add new line to [description/test.txt](dev-resources/sample-validator/description/test.txt) as follows.
 
 ```
@@ -93,7 +94,7 @@ In detail, see [ruler of validator](#Rule-of-validator) and [cruler.edn](#cruler
 Cruler's basic usage is simple.
 
 ```console
-$ clj -Avalidate /path/to/validator/project
+$ clojure -M:validate /path/to/validator/project
 ```
 
 For example, in case you have `sample-validate-project` as follows,
@@ -113,7 +114,7 @@ For example, in case you have `sample-validate-project` as follows,
 then you can run `validator/*.clj`.
 
 ```console
-$ clj -Avalidate "../sample-validate-project"
+$ clojure -M:validate "../sample-validate-project"
 ...
 ...
 
@@ -156,7 +157,7 @@ You can use Cruler as a library.
 ## Options
 
 ```console
-$ clj -Avalidate -h
+$ clojure -M:validate -h
 
 Usage: cruler [<options>] [<directory>]
 
@@ -293,8 +294,8 @@ As sample, you can refer [sample_validator/spec.clj](dev-resources/sample-valida
 using [clojure.test](https://clojuredocs.org/clojure.test) and [cljfmt](https://github.com/weavejester/cljfmt), you can run unit test and lint.
 
 ```console
-$ clj -Atest
-$ clj -Alint
+$ clojure -M:test
+$ clojure -M:lint
 ```
 
 ## License

@@ -5,9 +5,9 @@
         clj-commons/clj-yaml {:mvn/version "0.7.1"}
         org.clojure/data.csv {:mvn/version "1.0.0"}
         io.aviso/pretty {:mvn/version "0.1.37"}
-        phrase {:mvn/version "0.3-alpha4"}}
+        phrase/phrase {:mvn/version "0.3-alpha4"}}
  :aliases {:validate {:main-opts ["-m" "cruler.main"]}
-           :lint {:extra-deps {cljfmt {:mvn/version "0.6.8"}}
+           :lint {:extra-deps {cljfmt/cljfmt {:mvn/version "0.6.8"}}
                   :main-opts ["-m" "cljfmt.main" "check" "./"]}
            :test {:extra-paths ["test"]
                   :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
