@@ -2,7 +2,7 @@
         org.clojure/tools.cli {:mvn/version "1.0.194"}
         org.slf4j/slf4j-nop {:mvn/version "1.7.30"}
         clj-commons/pomegranate {:mvn/version "1.2.0"}
-        clj-commons/clj-yaml {:mvn/version "0.7.1"}
+        clj-commons/clj-yaml {:mvn/version "0.7.2"}
         org.clojure/data.csv {:mvn/version "1.0.0"}
         io.aviso/pretty {:mvn/version "0.1.37"}
         phrase/phrase {:mvn/version "0.3-alpha4"}}
