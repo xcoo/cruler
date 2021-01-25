@@ -227,17 +227,19 @@ Cruler expects validators to return Map. The Map should be as follow.
    :validator.namespace/validator-key ["regex of resource file"]}
  :paths ["validator"]
  :colorize true
+ :format {:error-value :pprint}
  :deps [[library version]]}
 ```
 
 `cruler.edn` requires some keys.
 
-| key           | require | default       | description                                                  |
-| ------------- | ------- | ------------- | ------------------------------------------------------------ |
-| `:validators` | true    |               | Define the validator and resources to be validated           |
-| `:paths`      | false   | ["validator"] | Define the classpaths including validator source codes       |
-| `:colorize`   | false   | true          | Define whether to color the output result                    |
-| `:deps`       | false   | nil           | Define the dependencies which the project require as library |
+| key           | require | default                | description                                                             |
+| ------------- | ------- | ---------------------- | ----------------------------------------------------------------------- |
+| `:validators` | true    |                        | Define the validator and resources to be validated                      |
+| `:paths`      | false   | ["validator"]          | Define the classpaths including validator source codes                  |
+| `:colorize`   | false   | true                   | Define whether to color the output result                               |
+| `:format`     | false   | {:error-value :pprint} | Define an error-value print function. You can use `:pprint` or `:print` |
+| `:deps`       | false   | nil                    | Define the dependencies which the project require as library            |
 
 See [cruler.edn.sample](dev-resources/cruler.edn.sample) and [sample-validator/cruler.edn](dev-resources/sample-validator/cruler.edn) as samples.
 
