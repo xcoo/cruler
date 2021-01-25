@@ -71,6 +71,14 @@
 (defn- pprint-str [x]
   (pprint/write x :stream nil))
 
+(def ^:private shape-type
+  (atom :pprint))
+
+(defn- shape-str [x]
+  (case @shape-type
+    :print (print-str x)
+    (pprint-str x)))
+
 (defn- indent [s n]
   (->> (string/split-lines s)
        (map #(str (apply str (repeat n " ")) %))
@@ -81,16 +89,16 @@
          (str (:pred err))
          (str (apply list (:pred err))))
        \newline
-       (indent (pprint-str (:val err)) 4)))
+       (indent (shape-str (:val err)) 4)))
 
 (defn- error-value-message
   [error-value]
   (if (sp/spec-problem? error-value)
     (if-let [readable-error (sp/readable-error error-value)]
       (str (apply str readable-error) \newline
-           (indent (pprint-str (:val error-value)) 4))
+           (indent (shape-str (:val error-value)) 4))
       (build-error-str error-value))
-    (pprint-str error-value)))
+    (shape-str error-value)))
 
 (defn- calc-range
   [line-num content num]
@@ -236,4 +244,5 @@
     (classpath/add-classpaths dir (:paths config))
     (classpath/add-deps (:deps config))
     (reset! config/colorize (:colorize config))
+    (reset! shape-type (get-in config [:format :error-value]))
     [absolute-filepath config]))

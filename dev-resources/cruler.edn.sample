@@ -11,4 +11,7 @@
  ;; Whether to color the output result, the default value is `true`
  ;; :colorize true
 
+ ;; Set an error-value print function, the default value is `pprint`
+ ;; :format {:error-value :pprint}
+
  :deps [[clj-hgvs "0.4.0"]]}
