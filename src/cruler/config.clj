@@ -6,7 +6,8 @@
   {:validators {}
    :paths ["validator"]
    :deps []
-   :colorize true})
+   :colorize true
+   :format {:error-value :pprint}})
 
 (def colorize
   (atom true))
