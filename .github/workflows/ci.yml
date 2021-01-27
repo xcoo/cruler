@@ -28,27 +28,52 @@ jobs:
       - name: Run lint
         run: clojure -M:lint
 
+  get-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: get version
+        id: get-version
+        run: |
+          sudo apt-get install libxml2-utils
+          echo ::set-output \
+            name=version::$(xmllint --xpath "/*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+
+  deploy-clojars-snapshot:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, validate, lint, get-version]
+    runs-on: ubuntu-latest
+    container:
+      image: clojure:openjdk-11-tools-deps
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
+        run: clojure -X:depstar jar :jar cruler.jar
+      - name: Deploy
+        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
+        env:
+          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
+          CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
+        run: clojure -M:deploy
+
   # ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
   # You can find the image on: https://hub.docker.com/r/xcoo/cruler
-  snapshot-push:
-    name: snapshot push
+  deploy-dockerhub-snapshot:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, validate, lint]
+    needs: [test, validate, lint, get-version]
     runs-on: ubuntu-latest
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: get tag version
-        id: get_tag_version
-        run: |
-          sudo apt-get install libxml2-utils
-          echo ::set-output \
-            name=VERSION::$(xmllint --xpath "/*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
       - name: snapshot push
-        if: endsWith(steps.get_tag_version.outputs.VERSION, '-SNAPSHOT')
+        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         uses: docker/build-push-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: xcoo/cruler
-          tags: ${{ steps.get_tag_version.outputs.VERSION }}
+          tags: ${{ needs.get-version.outputs.version }}
