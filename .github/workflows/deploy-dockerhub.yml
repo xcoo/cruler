@@ -2,7 +2,9 @@
 
 name: deploy-dockerhub
 
-on: [workflow_dispatch]
+on:
+  push:
+    tags: ['*']
 
 jobs:
   deploy:
