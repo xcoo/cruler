@@ -49,6 +49,9 @@
 (defn parse-yaml [s]
   (let [data (try
                (yaml/parse-string s :mark true)
+               (catch NullPointerException e
+                 (when-not s
+                   (throw e)))
                (catch Throwable e e))]
     (if (instance? Throwable data)
       data
