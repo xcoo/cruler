@@ -7,16 +7,19 @@
   (= (string/trim raw-content) ""))
 
 (defn- check-blank-line
-  [{:keys [file-path parsed-content]}]
-  (keep (fn [coll]
-          (when-let [keys (->> (map-indexed vector coll)
-                               (filter #(string/blank? (second %)))
-                               (map first)
-                               seq)]
-            {:file-path file-path
-             :error-block coll
-             :error-keys keys}))
-        parsed-content))
+  [{:keys [file-path raw-content]}]
+  (->> raw-content
+       (string/split-lines)
+       (map-indexed vector)
+       (filter #(string/blank? (second %)))
+       (map (fn [[line s]]
+              {:file-path file-path
+               :error-block (with-meta [s]
+                              {:line line
+                               :column 0
+                               :children-starts [{:line line
+                                                  :column 0}]})
+               :error-keys [0]}))))
 
 (defmethod cruler/validate ::start-of-file
   [_ data]
@@ -40,7 +43,6 @@
   [_ data]
   (let [errors (->> data
                     (remove blank-file?)
-                    (filter (fn [d] (.contains [:csv :text] (:file-type d))))
                     (mapcat check-blank-line)
                     (filter #(seq (:error-keys %))))]
     {:errors errors

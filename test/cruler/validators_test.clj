@@ -71,6 +71,11 @@
                               (list {:raw-content "ABC\nDEF\n"
                                      :parsed-content (parser/parse-text "ABC\nDEF\n")
                                      :file-path "a.txt"
+                                     :file-type :text})))))
+      (t/is (empty? (:errors (validate
+                              (list {:raw-content "ABC\nDE  F\n"
+                                     :parsed-content (parser/parse-text "ABC\nDE  F\n")
+                                     :file-path "a.txt"
                                      :file-type :text}))))))
     (t/testing "blank line"
       (t/testing "single file"
