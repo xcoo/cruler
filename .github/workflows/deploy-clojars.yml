@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        run: clojure -X:depstar jar :jar cruler.jar
+        run: clojure -T:build jar :jar-file cruler.jar
       - uses: actions/upload-artifact@v2
         with:
           name: jar
