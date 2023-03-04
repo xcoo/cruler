@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>xcoo</groupId>
+  <artifactId>cruler</artifactId>
+  <version>X.Y.Z</version>
+  <name>cruler</name>
+  <url>http://github.com/xcoo/cruler</url>
+  <licenses>
+    <license>
+      <name>Apache License, 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+  <scm>
+    <url>https://github.com/xcoo/cruler</url>
+    <connection>scm:git:git://github.com/xcoo/cruler.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/xcoo/cruler.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+  </build>
+  <repositories>
+    <repository>
+      <id>clojars</id>
+      <url>https://repo.clojars.org/</url>
+    </repository>
+  </repositories>
+</project>

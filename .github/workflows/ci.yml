@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
-        run: clojure -X:depstar jar :jar cruler.jar
+        run: clojure -T:build jar :jar-file cruler.jar
       - name: Deploy
         if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         env:

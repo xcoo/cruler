@@ -1,7 +1,7 @@
 FROM clojure:openjdk-11-tools-deps as builder
 WORKDIR /cruler
 COPY . /cruler
-RUN clojure -X:depstar uberjar :jar cruler.jar :aot true :main-class cruler.main
+RUN clojure -T:build uber :uber-file cruler.jar
 
 FROM openjdk:11-jre-slim
 COPY --from=builder \
