@@ -2,7 +2,7 @@
   (:require [clojure.tools.build.api :as b]))
 
 (def lib 'xcoo/cruler)
-(def version "1.2.2-SNAPSHOT")
+(def version "1.2.2")
 
 (def basis (b/create-basis {:project "deps.edn"}))
 (def src-pom "dev-resources/template-pom.xml")
