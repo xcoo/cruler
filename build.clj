@@ -41,3 +41,6 @@
            :uber-file (str (or uber-file default-uber-file))
            :basis basis
            :main main-class}))
+
+(defn get-version [_]
+  (println version))
