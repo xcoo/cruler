@@ -52,6 +52,8 @@ jobs:
       - name: Build
         if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         run: clojure -T:build jar :jar-file cruler.jar
+      - name: Copy pom.xml
+        run: cp target/classes/META-INF/maven/xcoo/cruler/pom.xml pom.xml
       - name: Deploy
         if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         env:
