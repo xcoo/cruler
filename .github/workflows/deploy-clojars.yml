@@ -13,13 +13,17 @@ jobs:
     container:
       image: clojure:openjdk-11-tools-deps
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build
         run: clojure -T:build jar :jar-file cruler.jar
-      - uses: actions/upload-artifact@v2
+      - name: Copy pom.xml
+        run: cp target/classes/META-INF/maven/xcoo/cruler/pom.xml pom.xml
+      - uses: actions/upload-artifact@v3
         with:
-          name: jar
-          path: cruler.jar
+          name: build-output
+          path: |
+            cruler.jar
+            pom.xml
 
   deploy:
     needs: build
@@ -30,7 +34,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/download-artifact@v2
         with:
-          name: jar
+          name: build-output
       - name: Deploy
         env:
           CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
