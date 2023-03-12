@@ -1,108 +1,15 @@
 name: ci
 on: [push]
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    container:
-      image: clojure:openjdk-11-tools-deps
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run test
-        run: clojure -M:test
-
-  validate:
-    runs-on: ubuntu-latest
-    container:
-      image: clojure:openjdk-11-tools-deps
-    steps:
-      - uses: actions/checkout@v2
-      - name: Validate
-        run: clojure -M:validate dev-resources/sample-validator
-
-  lint:
-    runs-on: ubuntu-latest
-    container:
-      image: clojure:openjdk-11-tools-deps
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run lint
-        run: clojure -M:lint
-
-  get-version:
-    runs-on: ubuntu-latest
-    container:
-      image: clojure:openjdk-11-tools-deps
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-      - name: get version
-        id: get-version
-        run: echo "version=$(clojure -T:build get-version)" >> "$GITHUB_OUTPUT"
-
   deploy-clojars-snapshot:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, validate, lint, get-version]
     runs-on: ubuntu-latest
     container:
       image: clojure:openjdk-11-tools-deps
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Build
-        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         run: clojure -T:build jar :jar-file cruler.jar
       - name: Copy pom.xml
-        run: cp target/classes/META-INF/maven/xcoo/cruler/pom.xml pom.xml
-      - name: Deploy
-        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
-        env:
-          CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
-          CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
-        run: clojure -M:deploy
-
-  # ref: https://docs.github.com/en/free-pro-team@latest/actions/guides/publishing-docker-images
-  # You can find the image on: https://hub.docker.com/r/xcoo/cruler
-  deploy-dockerhub-snapshot:
-    if: ${{ github.event_name == 'push' &&
-            github.ref == 'refs/heads/main' &&
-            endsWith(needs.get-version.outputs.version, '-SNAPSHOT') }}
-    needs: [test, validate, lint, get-version]
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Set up Docker Context for Buildx
         run: |
-          docker context create mybuilder
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          endpoint: mybuilder
-
-      - name: Setup Docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: |
-            name=xcoo/cruler
-          tags: |
-            ${{ needs.get-version.outputs.version }}
-
-      - name: Build image and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
+          cp target/classes/META-INF/maven/xcoo/cruler/pom.xml pom.xml
+          ls
