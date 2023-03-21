@@ -42,7 +42,9 @@ jobs:
         run: echo "version=$(clojure -T:build get-version)" >> "$GITHUB_OUTPUT"
 
   deploy-clojars-snapshot:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: ${{ github.event_name == 'push' &&
+            github.ref == 'refs/heads/main' &&
+            endsWith(needs.get-version.outputs.version, '-SNAPSHOT') }}
     needs: [test, validate, lint, get-version]
     runs-on: ubuntu-latest
     container:
@@ -50,12 +52,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         run: clojure -T:build jar :jar-file cruler.jar
       - name: Copy pom.xml
         run: cp target/classes/META-INF/maven/xcoo/cruler/pom.xml pom.xml
       - name: Deploy
-        if: endsWith(needs.get-version.outputs.version, '-SNAPSHOT')
         env:
           CLOJARS_USERNAME: ${{ secrets.CLOJARS_USERNAME }}
           CLOJARS_PASSWORD: ${{ secrets.CLOJARS_PASSWORD }}
