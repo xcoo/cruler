@@ -32,7 +32,7 @@ jobs:
       image: clojure:openjdk-11-tools-deps
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: build-output
       - name: Deploy
